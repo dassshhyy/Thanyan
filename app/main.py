@@ -3581,10 +3581,7 @@ async def admin_create_product(request: Request):
     if not validate_csrf_token(request, str(csrf_token) if csrf_token else None):
         return RedirectResponse(url="/admin/products", status_code=303)
     name = str(form.get("name", "")).strip()
-    description_enabled = str(form.get("description_enabled", "")).strip().lower() in {"1", "true", "on", "yes"}
     description = str(form.get("description", "")).strip()
-    if not description_enabled:
-        description = ""
     active = str(form.get("active", "")).strip().lower() in {"1", "true", "on", "yes"}
     discount_enabled = str(form.get("discount_enabled", "")).strip().lower() in {"1", "true", "on", "yes"}
     try:
@@ -3638,7 +3635,6 @@ async def admin_update_product(product_id: str, request: Request):
         None,
     )
     name = str(form.get("name", "")).strip()
-    description_enabled = str(form.get("description_enabled", "")).strip().lower() in {"1", "true", "on", "yes"}
     description = str(form.get("description", "")).strip()
     active = str(form.get("active", "")).strip().lower() in {"1", "true", "on", "yes"}
     discount_enabled = str(form.get("discount_enabled", "")).strip().lower() in {"1", "true", "on", "yes"}
@@ -3659,10 +3655,6 @@ async def admin_update_product(product_id: str, request: Request):
     if existing_product:
         if not name:
             name = str(existing_product.get("name", "")).strip()
-        if not description_enabled:
-            description = ""
-        elif not description:
-            description = str(existing_product.get("description", "")).strip()
         if not raw_price or price <= 0:
             price = round(float(existing_product.get("price", 0) or 0), 3)
         if discount_enabled and not raw_discount_percentage:

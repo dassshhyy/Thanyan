@@ -175,13 +175,8 @@
                   <input class="form-control" type="text" name="name" value="" required />
                 </label>
 
-                <label class="products-admin-checkbox">
-                  <input type="checkbox" name="description_enabled" id="create-product-description-enabled" />
-                  <span>إضافة وصف للمنتج</span>
-                </label>
-
-                <label class="products-admin-label products-admin-description-field" id="create-product-description-field" hidden>
-                  <span>الوصف</span>
+                <label class="products-admin-label">
+                  <span>الوصف (اختياري)</span>
                   <textarea class="form-control" name="description" rows="4"></textarea>
                 </label>
 
@@ -236,13 +231,8 @@
             <input class="form-control" type="text" name="name" id="edit-product-name" value="" />
           </label>
 
-          <label class="products-admin-checkbox">
-            <input type="checkbox" name="description_enabled" id="edit-product-description-enabled" />
-            <span>إضافة وصف للمنتج</span>
-          </label>
-
-          <label class="products-admin-label products-admin-description-field" id="edit-product-description-field" hidden>
-            <span>الوصف</span>
+          <label class="products-admin-label">
+            <span>الوصف (اختياري)</span>
             <textarea class="form-control" name="description" id="edit-product-description" rows="4"></textarea>
           </label>
 
@@ -296,10 +286,6 @@
       var editCancelEl = document.getElementById("product-edit-cancel-btn");
       var editFormEl = document.getElementById("product-edit-form");
       var editNameEl = document.getElementById("edit-product-name");
-      var createDescriptionEnabledEl = document.getElementById("create-product-description-enabled");
-      var createDescriptionFieldEl = document.getElementById("create-product-description-field");
-      var editDescriptionEnabledEl = document.getElementById("edit-product-description-enabled");
-      var editDescriptionFieldEl = document.getElementById("edit-product-description-field");
       var editDescriptionEl = document.getElementById("edit-product-description");
       var editPriceEl = document.getElementById("edit-product-price");
       var createDiscountEnabledEl = document.getElementById("create-product-discount-enabled");
@@ -352,16 +338,6 @@
         fieldEl.hidden = !toggleEl.checked;
         if (toggleEl === globalDiscountEnabledEl && globalDiscountSaveEl) {
           globalDiscountSaveEl.hidden = !toggleEl.checked;
-        }
-      }
-
-      function syncDescriptionField(toggleEl, fieldEl, inputEl) {
-        if (!toggleEl || !fieldEl) {
-          return;
-        }
-        fieldEl.hidden = !toggleEl.checked;
-        if (!toggleEl.checked && inputEl) {
-          inputEl.value = "";
         }
       }
 
@@ -476,18 +452,6 @@
         });
       }
 
-      if (createDescriptionEnabledEl) {
-        createDescriptionEnabledEl.addEventListener("change", function () {
-          var inputEl = createDescriptionFieldEl ? createDescriptionFieldEl.querySelector("textarea") : null;
-          syncDescriptionField(createDescriptionEnabledEl, createDescriptionFieldEl, inputEl);
-        });
-        syncDescriptionField(
-          createDescriptionEnabledEl,
-          createDescriptionFieldEl,
-          createDescriptionFieldEl ? createDescriptionFieldEl.querySelector("textarea") : null
-        );
-      }
-
       if (editDiscountEnabledEl) {
         editDiscountEnabledEl.addEventListener("change", function () {
           syncDiscountField(editDiscountEnabledEl, editDiscountFieldEl);
@@ -496,13 +460,6 @@
           }
         });
         syncDiscountField(editDiscountEnabledEl, editDiscountFieldEl);
-      }
-
-      if (editDescriptionEnabledEl) {
-        editDescriptionEnabledEl.addEventListener("change", function () {
-          syncDescriptionField(editDescriptionEnabledEl, editDescriptionFieldEl, editDescriptionEl);
-        });
-        syncDescriptionField(editDescriptionEnabledEl, editDescriptionFieldEl, editDescriptionEl);
       }
 
       function closeEditModal() {
@@ -527,9 +484,6 @@
         editFormEl.addEventListener("submit", function () {
           if (editNameEl && !editNameEl.value.trim()) {
             editNameEl.value = editNameEl.placeholder || "";
-          }
-          if (editDescriptionEl && !editDescriptionEl.value.trim()) {
-            editDescriptionEl.value = editDescriptionEl.placeholder || "";
           }
           if (editPriceEl && !editPriceEl.value.trim()) {
             editPriceEl.value = editPriceEl.placeholder || "";
@@ -560,8 +514,7 @@
           editNameEl.placeholder = String(product.name || "");
           editDescriptionEl.placeholder = String(product.description || "");
           editPriceEl.placeholder = String(product.price || "");
-          editDescriptionEnabledEl.checked = Boolean(String(product.description || "").trim());
-          syncDescriptionField(editDescriptionEnabledEl, editDescriptionFieldEl, editDescriptionEl);
+          editDescriptionEl.value = String(product.description || "");
           editDiscountEnabledEl.checked = Boolean(product.discount_enabled);
           editDiscountPercentageEl.placeholder = String(product.discount_percentage || "");
           syncDiscountField(editDiscountEnabledEl, editDiscountFieldEl);

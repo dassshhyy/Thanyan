@@ -105,7 +105,9 @@
       <div class="featured-product-copy">
         <span class="featured-product-kicker">المنتج المميز</span>
         <h2 data-featured-title="{{ spotlight_product.name }}">{{ spotlight_product.name }}</h2>
+        {% if spotlight_product.description %}
         <p>{{ spotlight_product.description }}</p>
+        {% endif %}
         <div class="featured-product-footer">
           <div class="offer-price-stack{% if spotlight_product.discount_enabled %} is-discounted{% endif %}">
             {% if spotlight_product.discount_enabled %}
@@ -150,7 +152,9 @@
       </div>
       <div class="offer-body">
         <h3>{{ product.name }}</h3>
+        {% if product.description %}
         <p>{{ product.description }}</p>
+        {% endif %}
         <div class="offer-footer">
           <div class="offer-qty-controls" data-offer-qty-controls hidden>
             <button type="button" class="offer-qty-btn" data-card-qty-action="minus">−</button>
