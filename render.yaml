@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: thanyan
+    runtime: python
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    envVars:
+      - key: ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.12.4
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_SESSION_SECRET
+        sync: false
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: REDIS_URL
+        sync: false
+      - key: MONGO_URI
+        sync: false

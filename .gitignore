@@ -43,3 +43,7 @@ dist/
 *.sqlite3
 *.db
 *.pid
+
+dump.rdb
+*.bak
+*.bak-*
