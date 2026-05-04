@@ -1,0 +1,337 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}مزارع الثنيان{% endblock %}
+
+{% block extra_head %}
+{% set social = social_settings if social_settings is defined and social_settings is not none else {'title': '', 'url': '', 'description': '', 'image_url': ''} %}
+{% set social_image = social.image_url %}
+{% if social_image and not social_image.startswith('http://') and not social_image.startswith('https://') %}
+  {% set social_image = request.base_url|string|trim('/') ~ social.image_url %}
+{% endif %}
+  <meta property="og:locale" content="ar_AR">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:url" content="{{ social.url }}">
+  <meta property="og:title" content="{{ social.title }}">
+  <meta property="og:description" content="{{ social.description }}">
+  <meta property="og:image" content="{{ social_image }}">
+  <meta name="twitter:title" content="{{ social.title }}">
+  <meta name="twitter:description" content="{{ social.description }}">
+  <meta name="twitter:image" content="{{ social_image }}">
+{% endblock %}
+
+{% block content %}
+{% set active_products = products|selectattr("active")|list %}
+{% set spotlight_product = featured_product if featured_product is defined and featured_product else none %}
+{% set grid_products = active_products|rejectattr("id", "equalto", spotlight_product.id if spotlight_product else none)|list %}
+<main class="farm-page">
+  <header class="farm-header">
+    <div class="mobile-header-tools">
+      <button type="button" class="mobile-cart-toggle" id="mobile-cart-toggle" aria-label="فتح السلة" {% if not active_products %}disabled aria-disabled="true"{% endif %}>
+        <img class="mobile-cart-icon" src="/static/frontend/images/cart.svg" alt="" aria-hidden="true" />
+        <span class="mobile-cart-count" data-cart-count-badge>0</span>
+      </button>
+
+      <button type="button" class="mobile-menu-toggle" aria-label="القائمة">
+        <img class="mobile-menu-icon" src="/static/frontend/images/menu.svg" alt="" aria-hidden="true" />
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <a href="/" class="brand-lockup" aria-label="العودة للرئيسية">
+        <img class="brand-logo" src="/static/frontend/images/logo.webp" alt="مزارع الثنيان" loading="eager" decoding="async" fetchpriority="high" />
+        <div class="brand-copy">
+          <strong>مزارع الثنيان</strong>
+          <span>Althenayan Farms</span>
+        </div>
+      </a>
+      <button type="button" class="menu-pill" aria-label="القائمة">
+        <span>القائمة</span>
+        <span class="menu-lines" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <button type="button" class="header-cart-pill" id="header-cart-toggle" aria-label="فتح السلة" {% if not active_products %}disabled aria-disabled="true"{% endif %}>
+      <svg class="header-cart-icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M1 1h.5v0c.226 0 .339 0 .44.007a3 3 0 0 1 2.62 1.976c.034.095.065.204.127.42l.17.597m0 0 1.817 6.358c.475 1.664.713 2.496 1.198 3.114a4 4 0 0 0 1.633 1.231c.727.297 1.592.297 3.322.297h2.285c1.75 0 2.626 0 3.359-.302a4 4 0 0 0 1.64-1.253c.484-.627.715-1.472 1.175-3.161l.06-.221c.563-2.061.844-3.092.605-3.906a3 3 0 0 0-1.308-1.713C19.92 4 18.853 4 16.716 4H4.857ZM12 20a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm8 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"></path>
+      </svg>
+      <span class="money-value" data-cart-total-header>0.000 د.ك</span>
+    </button>
+  </header>
+
+  <section class="hero-shell">
+    <div class="hero-copy">
+      <div class="hero-badges">
+        <span class="hero-badge accent">
+          <img class="chip-icon" src="/static/frontend/images/free_delivery.svg" alt="" aria-hidden="true" />
+          <span>توصيل مجاني</span>
+        </span>
+        <span class="hero-badge">خلال 40 دقيقة</span>
+        <span class="hero-badge">نقل مخصص</span>
+      </div>
+      <div class="store-meta">
+        <article>
+          <span>وقت التوصيل</span>
+          <strong>40 دقيقة</strong>
+        </article>
+        <article>
+          <span>التقييم</span>
+          <strong>4.7</strong>
+        </article>
+        <article>
+          <span>المسافة</span>
+          <strong>15 كيلو</strong>
+        </article>
+        <article>
+          <span>ساعات العمل</span>
+          <strong class="is-open">مفتوح</strong>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  {% if spotlight_product %}
+  <section class="featured-product-shell" aria-label="المنتج المميز">
+    <article
+      class="featured-product-card"
+      data-product-id="{{ spotlight_product.id }}"
+      data-product-name="{{ spotlight_product.name }}"
+      data-product-price="{{ spotlight_product.discounted_price }}"
+      data-product-original-price="{{ spotlight_product.price }}"
+      data-product-discount-enabled="{{ 'true' if spotlight_product.discount_enabled else 'false' }}"
+      data-product-image-url="{{ spotlight_product.image_url }}"
+      data-product-thumb-class="{{ spotlight_product.thumb_class }}"
+    >
+      <div class="featured-product-copy">
+        <span class="featured-product-kicker">المنتج المميز</span>
+        <h2 data-featured-title="{{ spotlight_product.name }}">{{ spotlight_product.name }}</h2>
+        <p>{{ spotlight_product.description }}</p>
+        <div class="featured-product-footer">
+          <div class="offer-price-stack{% if spotlight_product.discount_enabled %} is-discounted{% endif %}">
+            {% if spotlight_product.discount_enabled %}
+            <strong class="money-value offer-price-current">{{ "%.3f"|format(spotlight_product.discounted_price) }} د.ك</strong>
+            <span class="money-value offer-price-old">{{ "%.3f"|format(spotlight_product.price) }} د.ك</span>
+            {% else %}
+            <strong class="money-value offer-price-current">{{ "%.3f"|format(spotlight_product.price) }} د.ك</strong>
+            {% endif %}
+          </div>
+          <button type="button" class="add-btn featured-product-add-btn" data-add-to-cart>إضافة</button>
+        </div>
+      </div>
+      <div class="featured-product-thumb {{ spotlight_product.thumb_class }}">
+        {% if spotlight_product.image_url %}
+        <img class="offer-thumb-image" src="{{ spotlight_product.image_url }}" alt="{{ spotlight_product.name }}" loading="eager" decoding="async" fetchpriority="high" />
+        {% else %}
+        <span>صورة المنتج</span>
+        {% endif %}
+      </div>
+    </article>
+  </section>
+  {% endif %}
+
+  <section class="product-list" aria-label="قائمة المنتجات">
+    {% for product in grid_products %}
+    <article
+      class="offer-card"
+      data-product-id="{{ product.id }}"
+      data-product-name="{{ product.name }}"
+      data-product-price="{{ product.discounted_price }}"
+      data-product-original-price="{{ product.price }}"
+      data-product-discount-enabled="{{ 'true' if product.discount_enabled else 'false' }}"
+      data-product-image-url="{{ product.image_url }}"
+      data-product-thumb-class="{{ product.thumb_class }}"
+    >
+      <div class="offer-thumb {{ product.thumb_class }}">
+        {% if product.image_url %}
+        <img class="offer-thumb-image" src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy" decoding="async" />
+        {% else %}
+        <span>صورة المنتج</span>
+        {% endif %}
+      </div>
+      <div class="offer-body">
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.description }}</p>
+        <div class="offer-footer">
+          <div class="offer-qty-controls" data-offer-qty-controls hidden>
+            <button type="button" class="offer-qty-btn" data-card-qty-action="minus">−</button>
+            <span class="offer-qty-value" data-card-qty-value>1</span>
+            <button type="button" class="offer-qty-btn" data-card-qty-action="plus">+</button>
+          </div>
+          <button type="button" class="add-btn" data-add-to-cart>إضافة</button>
+          <div class="offer-price-stack{% if product.discount_enabled %} is-discounted{% endif %}">
+            {% if product.discount_enabled %}
+            <strong class="money-value offer-price-current">{{ "%.3f"|format(product.discounted_price) }} د.ك</strong>
+            <span class="money-value offer-price-old">{{ "%.3f"|format(product.price) }} د.ك</span>
+            {% else %}
+            <strong class="money-value offer-price-current">{{ "%.3f"|format(product.price) }} د.ك</strong>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </article>
+    {% else %}
+    <div class="products-empty-state">لا توجد منتجات مضافة حاليا.</div>
+    {% endfor %}
+  </section>
+
+  <button type="button" class="basket-bar" id="basket-bar" aria-label="فتح سلة المشتريات" {% if not active_products %}disabled aria-disabled="true"{% endif %}>
+    <div class="basket-bar-main">
+      <span class="basket-arrow" aria-hidden="true">
+        <img class="basket-arrow-icon" src="/static/frontend/images/<.svg" alt="" />
+      </span>
+      <strong class="basket-title">{% if active_products %}سلة المنتجات فارغة{% else %}لا توجد منتجات حاليا{% endif %}</strong>
+    </div>
+    <div class="basket-bar-summary">
+      <span class="basket-count" data-cart-count-badge>0</span>
+      <span class="money-value" data-cart-total-bar>0.000 د.ك</span>
+    </div>
+  </button>
+
+  <footer class="store-footer" id="store-footer">
+    <div class="store-footer-links" aria-label="روابط المتجر">
+      <a href="#" id="privacy-policy-trigger">سياسة الخصوصية</a>
+      <a href="#" id="refund-policy-trigger">سياسة الاسترجاع</a>
+      <a href="#" id="terms-policy-trigger">شروط الخدمة</a>
+      <a href="#" id="shipping-policy-trigger">سياسة الشحن</a>
+      <a href="#">معلومات الاتصال</a>
+    </div>
+    <p class="store-footer-copy" dir="rtl">جميع الحقوق محفوظة، مزارع الثنيان © 2026</p>
+  </footer>
+
+  <aside class="policy-modal" id="privacy-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="privacy-policy-title">سياسة الخصوصية</h2>
+        <button type="button" class="policy-modal-close" data-close-policy aria-label="إغلاق سياسة الخصوصية">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>نحن في مزارع الثنيان نحرص على حماية خصوصيتك والتعامل مع بياناتك بمسؤولية وشفافية.</p>
+        <p>عند استخدامك لهذا المتجر، قد نقوم بجمع المعلومات الأساسية اللازمة لإتمام الطلبات وتحسين تجربة الاستخدام، مثل الاسم ورقم الهاتف والعنوان وتفاصيل الطلب.</p>
+        <p>يتم استخدام هذه المعلومات فقط لأغراض تشغيل المتجر، وتأكيد الطلبات، والتوصيل، وخدمة العملاء، وتحسين جودة الخدمة.</p>
+        <p>نلتزم بعدم بيع أو مشاركة بياناتك الشخصية مع أي طرف ثالث إلا عند الضرورة التشغيلية المرتبطة بإتمام الطلب أو إذا طُلب ذلك بموجب الأنظمة المعمول بها.</p>
+        <p>كما نعمل على اتخاذ الإجراءات المناسبة لحماية بياناتك من الوصول غير المصرح به أو الاستخدام غير السليم.</p>
+        <p>باستخدامك لهذا المتجر، فإنك توافق على هذه السياسة وعلى استخدام بياناتك ضمن الحدود الموضحة أعلاه.</p>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="policy-modal" id="shipping-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-shipping-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="shipping-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="shipping-policy-title">سياسة الشحن</h2>
+        <button type="button" class="policy-modal-close" data-close-shipping-policy aria-label="إغلاق سياسة الشحن">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>نلتزم في مزارع الثنيان بتوفير شحن سريع وموثوق لجميع الطلبات داخل نطاق التوصيل المعتمد.</p>
+        <p>يتم تجهيز الطلب وبدء إجراءات الشحن مباشرة بعد تأكيد الدفع بنجاح.</p>
+        <p>مدة التوصيل المتوقعة هي خلال 40 دقيقة من وقت الدفع، وقد تختلف قليلًا حسب الموقع وحالة الطلبات والظروف التشغيلية.</p>
+        <p>في حال وجود أي تأخير غير متوقع، سيقوم فريقنا بالتواصل معك لإبلاغك بحالة الطلب ووقت الوصول المتوقع.</p>
+        <p>يرجى التأكد من إدخال بيانات الموقع والتواصل بشكل صحيح لضمان تسليم الطلب بسرعة ودقة.</p>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="policy-modal" id="terms-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-terms-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="terms-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="terms-policy-title">شروط الخدمة</h2>
+        <button type="button" class="policy-modal-close" data-close-terms-policy aria-label="إغلاق شروط الخدمة">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>باستخدامك لمتجر مزارع الثنيان فإنك توافق على الالتزام بهذه الشروط والأحكام المنظمة لعملية الشراء واستخدام الموقع.</p>
+        <p>جميع الطلبات تخضع للتوفر الفعلي للمنتجات، ويحق للمتجر تعديل أو إلغاء أي طلب عند وجود سبب تشغيلي أو خطأ في البيانات أو عدم توفر المنتج.</p>
+        <p>يلتزم العميل بتقديم معلومات صحيحة وكاملة عند إتمام الطلب، بما في ذلك بيانات التواصل وموقع التسليم.</p>
+        <p>الأسعار المعروضة داخل المتجر قابلة للتحديث أو التعديل في أي وقت، ويتم اعتماد السعر النهائي الظاهر عند تأكيد الطلب.</p>
+        <p>مدة التوصيل تقديرية وتعتمد على الموقع وحالة التشغيل والظروف الخارجية، مع حرصنا على تنفيذ الطلبات بأسرع وقت ممكن.</p>
+        <p>استمرارك في استخدام هذا المتجر أو إتمام عملية شراء يعني موافقتك على هذه الشروط وما قد يطرأ عليها من تحديثات.</p>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="policy-modal" id="refund-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-refund-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="refund-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="refund-policy-title">سياسة الإسترجاع والإستبدال</h2>
+        <button type="button" class="policy-modal-close" data-close-refund-policy aria-label="إغلاق سياسة الاسترجاع">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>نحن في مناحل الثنيان نلتزم بتقديم أفضل جودة لعملائنا. إذا كنت بحاجة إلى استرجاع أو استبدال أحد منتجاتنا، يُرجى الإلتزام بالشروط التالية لضمان تجربة سلسة وآمنة للجميع:</p>
+        <p><strong>1. استبدال المنتج:</strong></p>
+        <p>يمكن استبدال المنتج في حال عدم رضا العميل عن الجودة أو وجود أي تلف في المنتج.</p>
+        <p>يجب أن يكون المنتج في عبوته الأصلية مغلقة وغير مستخدم.</p>
+        <p>يتم طلب الإستبدال خلال مدة لا تتجاوز 7 أيام من تاريخ استلام الطلب.</p>
+        <p><strong>2. استرجاع المنتج:</strong></p>
+        <p>يمكن استرجاع المنتج بشرط أن يكون في عبوته الأصلية مغلقة.</p>
+        <p>يجب تضمين أي هدايا أو ملحقات تم تسليمها مع المنتج وذلك عند الإسترجاع.</p>
+        <p>يتم طلب الإسترجاع خلال مدة لا تتجاوز 3 أيام من تاريخ استلام الطلب.</p>
+        <p>يتم إرجاع المبلغ المدفوع عن طريق تحويل بنكي للحساب الخاص بالعميل.</p>
+        <p><strong>3. رسوم الإستبدال أو الإسترجاع:</strong></p>
+        <p>في حالة طلب الإستبدال وفقا للشروط المذكورة أعلاه يتحمل العميل رسوما بقيمة 50% من قيمة الشحن والتخليص الجمركي كمصاريف الإستبدال.</p>
+        <p>في حالة طلب الإسترجاع بدون وجود عيوب أو مشاكل في المنتج، سيتم خصم 30% من قيمة الفاتورة على أن لا تقل عن 10 دينار كويتي، أيهما أكبر.</p>
+        <p><strong>4. حالات غير مؤهلة للإسترجاع أو الإستبدال:</strong></p>
+        <p>المنتجات المتضررة بسبب سوء الإستخدام أو الإهمال أو الفتح.</p>
+        <p>المنتجات التي لا تتوافق مع الشروط المذكورة أعلاه.</p>
+        <p><strong>5. كيفية تقديم طلب الإسترجاع أو الإستبدال:</strong></p>
+        <p>يُرجى التواصل معنا من خلال صفحة "اتصل بنا" أو عبر الرقم الموحد المتاح على موقعنا.</p>
+        <p>سيتم مراجعة الطلب والتواصل مع العميل لتأكيد الإجراء المناسب.</p>
+      </div>
+    </div>
+  </aside>
+
+  {% if active_products %}
+  <aside class="cart-drawer" id="cart-drawer" aria-hidden="true">
+    <div class="cart-drawer-backdrop" data-close-cart></div>
+    <div class="cart-panel" role="dialog" aria-modal="true" aria-label="عربة التسوق الخاصة بك">
+      <div class="cart-panel-head">
+        <div>
+          <h2>عربة التسوق الخاصة بك</h2>
+        </div>
+        <button type="button" class="cart-close" data-close-cart aria-label="إغلاق السلة">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="cart-items" id="cart-items">
+        <div class="cart-empty" id="cart-empty">السلة فارغة حاليا.</div>
+      </div>
+      <div class="cart-summary">
+        <div class="cart-summary-row">
+          <span>عدد المنتجات</span>
+          <strong data-cart-count>0</strong>
+        </div>
+        <div class="cart-summary-row">
+          <span>الإجمالي</span>
+          <strong class="money-value" data-cart-total>0.000 د.ك</strong>
+        </div>
+        <button type="button" class="checkout-btn" id="checkout-btn" disabled aria-disabled="true">
+          <img class="checkout-arrow-icon" src="/static/frontend/images/<.svg" alt="" aria-hidden="true" />
+          <span>موقع التسليم</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+  {% endif %}
+
+</main>
+{% endblock %}

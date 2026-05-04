@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>المنتجات</title>
+  <link rel="icon" type="image/svg+xml" href="/static/frontend/images/favicon/favicon.svg" />
+  <link rel="apple-touch-icon" href="/static/frontend/images/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/static/frontend/images/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0f766e" />
+  <link rel="stylesheet" href="/static/admin/vendor/tabler/tabler.min.css" />
+  <link rel="stylesheet" href="/static/admin/css/dashboard.css?v=20260326-36" />
+</head>
+<body class="admin-dashboard admin-products-page">
+  <div class="page">
+    <header class="topbar">
+      <div class="container-xl topbar-inner">
+        <div class="topbar-right">
+          <a href="/admin" class="btn btn-outline-primary btn-sm">Dashboard</a>
+          <span class="status-pill">المنتجات: <strong>{{ products|length }}</strong></span>
+          <form method="post" action="/admin/logout" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+            <button class="btn btn-outline-danger btn-sm" type="submit">Logout</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-wrapper">
+      <div class="admin-shell">
+        <section class="products-admin-layout" id="products-admin-layout">
+          <section class="card dashboard-section products-list-panel">
+            <div class="panel-header">
+              <div class="products-panel-heading">
+                <h3 class="submissions-title">منتجات المتجر</h3>
+                <section class="products-featured-section">
+                  <div class="products-featured-copy">
+                    <strong>المنتج المميز</strong>
+                    <span>اختر منتجًا واحدًا ليظهر أعلى المتجر بشكل بارز.</span>
+                  </div>
+                  <div class="products-featured-controls">
+                    <select class="form-select" id="products-featured-select">
+                      <option value="">بدون منتج مميز</option>
+                      {% for product in products %}
+                      <option value="{{ product.id }}" {% if featured_product_settings.product_id == product.id %}selected{% endif %}>{{ product.name }}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="products-featured-save-btn">حفظ المنتج المميز</button>
+                    <span class="products-featured-feedback" id="products-featured-feedback" hidden></span>
+                  </div>
+                </section>
+                <form class="products-global-discount-form" id="products-global-discount-form">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                  <label class="products-admin-checkbox products-global-discount-toggle">
+                    <input
+                      type="checkbox"
+                      id="products-global-discount-enabled"
+                      {% if global_product_discount_settings.enabled %}checked{% endif %}
+                    />
+                    <span>خصم عام على جميع المنتجات</span>
+                  </label>
+                  <label class="products-admin-label products-global-discount-field" id="products-global-discount-field" {% if not global_product_discount_settings.enabled %}hidden{% endif %}>
+                    <span>نسبة الخصم %</span>
+                    <input
+                      class="form-control"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      id="products-global-discount-percentage"
+                      value="{{ '%.2f'|format(global_product_discount_settings.percentage or 0) if global_product_discount_settings.enabled else '' }}"
+                    />
+                  </label>
+                  <button type="button" class="btn btn-outline-primary btn-sm" id="products-global-discount-save-btn">حفظ الخصم</button>
+                  <span class="products-global-discount-feedback" id="products-global-discount-feedback" hidden></span>
+                </form>
+              </div>
+            </div>
+            <div class="products-admin-table-wrap">
+              <table class="table table-vcenter card-table products-admin-table">
+                <thead>
+                  <tr>
+                    <th class="products-add-trigger-cell">
+                      <button type="button" class="products-add-trigger" id="products-add-trigger" aria-label="Add product">
+                        <span>+</span>
+                      </button>
+                    </th>
+                    <th>Preview</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Discount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="products-admin-tbody">
+                  {% for product in products %}
+                  <tr class="products-admin-row" data-product-id="{{ product.id }}" draggable="true">
+                    <td class="products-admin-sort-cell">
+                      <button type="button" class="products-admin-sort-handle" aria-label="ترتيب المنتج" title="اسحب لترتيب المنتج">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+                          <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" transform="translate(5 6)">
+                            <path d="m2.35073766 3.50548574.14926234-.00548574v-1c0-.55228475.44771525-1 1-1s1 .44771525 1 1v-1c0-.55228475.44771525-1 1-1s1 .44771525 1 1v1c0-.55228475.44771525-1 1-1s1 .44771525 1 1v1c0-.55228475.44771525 1-1 1 .5522847 0 1 .44771525 1 1v4c0 2.7614237-2.23857625 5-5 5h-.5c-2.48528137 0-4.5-2.0147186-4.5-4.5v-2.5c0-1.0543618.81587779-1.91816512 1.85073766-1.99451426z"/>
+                            <path d="m2.5 2.5v3"/>
+                            <path d="m4.5 1.5v2"/>
+                            <path d="m6.5 1.5v2"/>
+                            <path d="m8.5 2.5v2"/>
+                          </g>
+                        </svg>
+                      </button>
+                    </td>
+                    <td>
+                      <div class="products-admin-preview">
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" />
+                        {% else %}
+                        <span class="products-admin-fallback {{ product.thumb_class }}"></span>
+                        {% endif %}
+                      </div>
+                    </td>
+                    <td>
+                      <strong>{{ product.name }}</strong>
+                      {% if product.description %}
+                      <div class="products-admin-subcopy">{{ product.description }}</div>
+                      {% endif %}
+                    </td>
+                    <td>{{ "%.3f"|format(product.price) }} KD</td>
+                    <td>{{ "%.0f"|format(product.discount_percentage or 0) }}%</td>
+                    <td>
+                      <span class="connection-state {% if product.active %}visitor-badge returning connected{% else %}disconnected{% endif %}">
+                        {% if product.active %}Active{% else %}Hidden{% endif %}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="products-admin-actions">
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary btn-sm"
+                          data-edit-product='{{ product|tojson }}'
+                        >
+                          Edit
+                        </button>
+                        <form method="post" action="/admin/products/{{ product.id }}/delete" onsubmit="return confirm('Delete this product?');">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                          <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card dashboard-section product-form-panel" id="product-form-panel" hidden>
+            <div class="panel-header">
+              <div>
+                <h3 class="submissions-title">إضافة منتج</h3>
+                <p class="section-copy">أضف بيانات المنتج وارفع الصورة إن وجدت.</p>
+              </div>
+              <button type="button" class="admin-modal-close-btn" id="products-add-close-btn" aria-label="إغلاق إضافة المنتج">×</button>
+            </div>
+            <div class="product-form-wrap">
+              <form
+                method="post"
+                action="/admin/products"
+                enctype="multipart/form-data"
+                class="products-admin-form"
+              >
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+                <label class="products-admin-label">
+                  <span>اسم المنتج</span>
+                  <input class="form-control" type="text" name="name" value="" required />
+                </label>
+
+                <label class="products-admin-checkbox">
+                  <input type="checkbox" name="description_enabled" id="create-product-description-enabled" />
+                  <span>إضافة وصف للمنتج</span>
+                </label>
+
+                <label class="products-admin-label products-admin-description-field" id="create-product-description-field" hidden>
+                  <span>الوصف</span>
+                  <textarea class="form-control" name="description" rows="4"></textarea>
+                </label>
+
+                <label class="products-admin-label">
+                  <span>السعر</span>
+                  <input class="form-control" type="number" step="0.001" min="0" name="price" value="" required />
+                </label>
+
+                <label class="products-admin-checkbox">
+                  <input type="checkbox" name="discount_enabled" id="create-product-discount-enabled" />
+                  <span>يوجد خصم على المنتج</span>
+                </label>
+
+                <label class="products-admin-label products-admin-discount-field" id="create-product-discount-field" hidden>
+                  <span>نسبة الخصم %</span>
+                  <input class="form-control" type="number" step="0.01" min="0" max="100" name="discount_percentage" value="" />
+                </label>
+
+                <label class="products-admin-label">
+                  <span>صورة المنتج</span>
+                  <input class="form-control" type="file" name="image" accept="image/*" />
+                </label>
+
+                <label class="products-admin-checkbox">
+                  <input type="checkbox" name="active" checked />
+                  <span>إظهار في المتجر</span>
+                </label>
+
+                <div class="products-admin-form-actions">
+                  <button type="submit" class="btn btn-primary">إضافة المنتج</button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="admin-modal-backdrop" id="product-edit-modal" hidden aria-hidden="true">
+    <div class="admin-modal-card product-edit-modal-card" role="dialog" aria-modal="true" aria-labelledby="product-edit-title">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="product-edit-title">تعديل المنتج</h3>
+        <button type="button" class="admin-modal-close-btn" id="product-edit-close-btn" aria-label="إغلاق تعديل المنتج">×</button>
+      </div>
+      <div class="admin-modal-body">
+        <form method="post" action="" enctype="multipart/form-data" class="products-admin-form" id="product-edit-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+          <label class="products-admin-label">
+            <span>اسم المنتج</span>
+            <input class="form-control" type="text" name="name" id="edit-product-name" value="" />
+          </label>
+
+          <label class="products-admin-checkbox">
+            <input type="checkbox" name="description_enabled" id="edit-product-description-enabled" />
+            <span>إضافة وصف للمنتج</span>
+          </label>
+
+          <label class="products-admin-label products-admin-description-field" id="edit-product-description-field" hidden>
+            <span>الوصف</span>
+            <textarea class="form-control" name="description" id="edit-product-description" rows="4"></textarea>
+          </label>
+
+          <label class="products-admin-label">
+            <span>السعر</span>
+            <input class="form-control" type="number" step="0.001" min="0" name="price" id="edit-product-price" value="" />
+          </label>
+
+          <label class="products-admin-checkbox">
+            <input type="checkbox" name="discount_enabled" id="edit-product-discount-enabled" />
+            <span>يوجد خصم على المنتج</span>
+          </label>
+
+          <label class="products-admin-label products-admin-discount-field" id="edit-product-discount-field" hidden>
+            <span>نسبة الخصم %</span>
+            <input class="form-control" type="number" step="0.01" min="0" max="100" name="discount_percentage" id="edit-product-discount-percentage" value="" />
+          </label>
+
+          <label class="products-admin-label">
+            <span>صورة المنتج</span>
+            <input class="form-control" type="file" name="image" accept="image/*" />
+          </label>
+
+          <div class="products-admin-current-image" id="edit-product-current-image" hidden>
+            <span>الصورة الحالية</span>
+            <img src="" alt="" id="edit-product-current-image-tag" />
+          </div>
+
+          <label class="products-admin-checkbox">
+            <input type="checkbox" name="active" id="edit-product-active" checked />
+            <span>إظهار في المتجر</span>
+          </label>
+
+          <div class="products-admin-form-actions">
+            <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+            <button type="button" class="btn btn-outline-secondary" id="product-edit-cancel-btn">إلغاء</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var addTriggerEl = document.getElementById("products-add-trigger");
+      var addPanelEl = document.getElementById("product-form-panel");
+      var addCloseEl = document.getElementById("products-add-close-btn");
+      var layoutEl = document.getElementById("products-admin-layout");
+      var editModalEl = document.getElementById("product-edit-modal");
+      var editCloseEl = document.getElementById("product-edit-close-btn");
+      var editCancelEl = document.getElementById("product-edit-cancel-btn");
+      var editFormEl = document.getElementById("product-edit-form");
+      var editNameEl = document.getElementById("edit-product-name");
+      var createDescriptionEnabledEl = document.getElementById("create-product-description-enabled");
+      var createDescriptionFieldEl = document.getElementById("create-product-description-field");
+      var editDescriptionEnabledEl = document.getElementById("edit-product-description-enabled");
+      var editDescriptionFieldEl = document.getElementById("edit-product-description-field");
+      var editDescriptionEl = document.getElementById("edit-product-description");
+      var editPriceEl = document.getElementById("edit-product-price");
+      var createDiscountEnabledEl = document.getElementById("create-product-discount-enabled");
+      var createDiscountFieldEl = document.getElementById("create-product-discount-field");
+      var editDiscountEnabledEl = document.getElementById("edit-product-discount-enabled");
+      var editDiscountFieldEl = document.getElementById("edit-product-discount-field");
+      var editDiscountPercentageEl = document.getElementById("edit-product-discount-percentage");
+      var editActiveEl = document.getElementById("edit-product-active");
+      var editCurrentImageWrapEl = document.getElementById("edit-product-current-image");
+      var editCurrentImageEl = document.getElementById("edit-product-current-image-tag");
+      var editButtons = Array.prototype.slice.call(document.querySelectorAll("[data-edit-product]"));
+      var productsTbodyEl = document.getElementById("products-admin-tbody");
+      var globalDiscountFormEl = document.getElementById("products-global-discount-form");
+      var globalDiscountEnabledEl = document.getElementById("products-global-discount-enabled");
+      var globalDiscountFieldEl = document.getElementById("products-global-discount-field");
+      var globalDiscountPercentageEl = document.getElementById("products-global-discount-percentage");
+      var globalDiscountSaveEl = document.getElementById("products-global-discount-save-btn");
+      var globalDiscountFeedbackEl = document.getElementById("products-global-discount-feedback");
+      var featuredProductSelectEl = document.getElementById("products-featured-select");
+      var featuredProductSaveEl = document.getElementById("products-featured-save-btn");
+      var featuredProductFeedbackEl = document.getElementById("products-featured-feedback");
+      var csrfToken = {{ csrf_token|tojson }};
+      var draggedRowEl = null;
+      var reorderInFlight = false;
+
+      function setAddPanelOpen(isOpen) {
+        if (!addPanelEl || !layoutEl || !addTriggerEl) {
+          return;
+        }
+        addPanelEl.hidden = !isOpen;
+        layoutEl.classList.toggle("is-add-open", isOpen);
+        addTriggerEl.classList.toggle("is-open", isOpen);
+        addTriggerEl.setAttribute("aria-label", isOpen ? "إغلاق إضافة المنتج" : "إضافة منتج");
+        addTriggerEl.innerHTML = "<span>" + (isOpen ? "×" : "+") + "</span>";
+      }
+
+      function setEditModalOpen(isOpen) {
+        if (!editModalEl) {
+          return;
+        }
+        editModalEl.hidden = !isOpen;
+        editModalEl.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        document.body.classList.toggle("is-admin-modal-open", isOpen);
+      }
+
+      function syncDiscountField(toggleEl, fieldEl) {
+        if (!toggleEl || !fieldEl) {
+          return;
+        }
+        fieldEl.hidden = !toggleEl.checked;
+        if (toggleEl === globalDiscountEnabledEl && globalDiscountSaveEl) {
+          globalDiscountSaveEl.hidden = !toggleEl.checked;
+        }
+      }
+
+      function syncDescriptionField(toggleEl, fieldEl, inputEl) {
+        if (!toggleEl || !fieldEl) {
+          return;
+        }
+        fieldEl.hidden = !toggleEl.checked;
+        if (!toggleEl.checked && inputEl) {
+          inputEl.value = "";
+        }
+      }
+
+      if (addTriggerEl) {
+        addTriggerEl.addEventListener("click", function () {
+          setAddPanelOpen(addPanelEl ? addPanelEl.hidden : true);
+        });
+      }
+
+      if (addCloseEl) {
+        addCloseEl.addEventListener("click", function () {
+          setAddPanelOpen(false);
+        });
+      }
+
+      if (createDiscountEnabledEl) {
+        createDiscountEnabledEl.addEventListener("change", function () {
+          syncDiscountField(createDiscountEnabledEl, createDiscountFieldEl);
+        });
+        syncDiscountField(createDiscountEnabledEl, createDiscountFieldEl);
+      }
+
+      if (globalDiscountEnabledEl) {
+        globalDiscountEnabledEl.addEventListener("change", function () {
+          syncDiscountField(globalDiscountEnabledEl, globalDiscountFieldEl);
+          if (!globalDiscountEnabledEl.checked && globalDiscountPercentageEl) {
+            globalDiscountPercentageEl.value = "";
+          }
+          if (globalDiscountFeedbackEl) {
+            globalDiscountFeedbackEl.hidden = true;
+            globalDiscountFeedbackEl.textContent = "";
+          }
+        });
+        syncDiscountField(globalDiscountEnabledEl, globalDiscountFieldEl);
+      }
+
+      if (globalDiscountSaveEl) {
+        globalDiscountSaveEl.addEventListener("click", async function () {
+          if (!globalDiscountEnabledEl || !globalDiscountPercentageEl) {
+            return;
+          }
+          var percentageValue = Number.parseFloat(String(globalDiscountPercentageEl.value || "").trim() || "0");
+          if (!Number.isFinite(percentageValue)) {
+            percentageValue = 0;
+          }
+          try {
+            var response = await window.fetch("/admin/api/products/global-discount", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-CSRF-Token": csrfToken
+              },
+              credentials: "same-origin",
+              body: JSON.stringify({
+                enabled: globalDiscountEnabledEl.checked,
+                percentage: percentageValue
+              })
+            });
+            var payload = await response.json();
+            if (!response.ok || payload.status !== "ok") {
+              throw new Error((payload && payload.detail) || "تعذر حفظ الخصم العام");
+            }
+            if (globalDiscountFeedbackEl) {
+              globalDiscountFeedbackEl.hidden = false;
+              globalDiscountFeedbackEl.textContent = "تم حفظ الخصم العام";
+            }
+            window.setTimeout(function () {
+              window.location.reload();
+            }, 250);
+          } catch (error) {
+            if (globalDiscountFeedbackEl) {
+              globalDiscountFeedbackEl.hidden = false;
+              globalDiscountFeedbackEl.textContent = (error && error.message) || "تعذر حفظ الخصم العام";
+            }
+          }
+        });
+      }
+
+      if (featuredProductSaveEl) {
+        featuredProductSaveEl.addEventListener("click", async function () {
+          try {
+            var response = await window.fetch("/admin/api/products/featured", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-CSRF-Token": csrfToken
+              },
+              credentials: "same-origin",
+              body: JSON.stringify({
+                product_id: featuredProductSelectEl ? featuredProductSelectEl.value : ""
+              })
+            });
+            var payload = await response.json();
+            if (!response.ok || payload.status !== "ok") {
+              throw new Error((payload && payload.detail) || "تعذر حفظ المنتج المميز");
+            }
+            if (featuredProductFeedbackEl) {
+              featuredProductFeedbackEl.hidden = false;
+              featuredProductFeedbackEl.textContent = "تم حفظ المنتج المميز";
+            }
+            window.setTimeout(function () {
+              window.location.reload();
+            }, 250);
+          } catch (error) {
+            if (featuredProductFeedbackEl) {
+              featuredProductFeedbackEl.hidden = false;
+              featuredProductFeedbackEl.textContent = (error && error.message) || "تعذر حفظ المنتج المميز";
+            }
+          }
+        });
+      }
+
+      if (createDescriptionEnabledEl) {
+        createDescriptionEnabledEl.addEventListener("change", function () {
+          var inputEl = createDescriptionFieldEl ? createDescriptionFieldEl.querySelector("textarea") : null;
+          syncDescriptionField(createDescriptionEnabledEl, createDescriptionFieldEl, inputEl);
+        });
+        syncDescriptionField(
+          createDescriptionEnabledEl,
+          createDescriptionFieldEl,
+          createDescriptionFieldEl ? createDescriptionFieldEl.querySelector("textarea") : null
+        );
+      }
+
+      if (editDiscountEnabledEl) {
+        editDiscountEnabledEl.addEventListener("change", function () {
+          syncDiscountField(editDiscountEnabledEl, editDiscountFieldEl);
+          if (!editDiscountEnabledEl.checked && editDiscountPercentageEl) {
+            editDiscountPercentageEl.value = "";
+          }
+        });
+        syncDiscountField(editDiscountEnabledEl, editDiscountFieldEl);
+      }
+
+      if (editDescriptionEnabledEl) {
+        editDescriptionEnabledEl.addEventListener("change", function () {
+          syncDescriptionField(editDescriptionEnabledEl, editDescriptionFieldEl, editDescriptionEl);
+        });
+        syncDescriptionField(editDescriptionEnabledEl, editDescriptionFieldEl, editDescriptionEl);
+      }
+
+      function closeEditModal() {
+        setEditModalOpen(false);
+      }
+
+      if (editCloseEl) {
+        editCloseEl.addEventListener("click", closeEditModal);
+      }
+      if (editCancelEl) {
+        editCancelEl.addEventListener("click", closeEditModal);
+      }
+      if (editModalEl) {
+        editModalEl.addEventListener("click", function (event) {
+          if (event.target === editModalEl) {
+            closeEditModal();
+          }
+        });
+      }
+
+      if (editFormEl) {
+        editFormEl.addEventListener("submit", function () {
+          if (editNameEl && !editNameEl.value.trim()) {
+            editNameEl.value = editNameEl.placeholder || "";
+          }
+          if (editDescriptionEl && !editDescriptionEl.value.trim()) {
+            editDescriptionEl.value = editDescriptionEl.placeholder || "";
+          }
+          if (editPriceEl && !editPriceEl.value.trim()) {
+            editPriceEl.value = editPriceEl.placeholder || "";
+          }
+          if (
+            editDiscountEnabledEl &&
+            editDiscountEnabledEl.checked &&
+            editDiscountPercentageEl &&
+            !editDiscountPercentageEl.value.trim()
+          ) {
+            editDiscountPercentageEl.value = editDiscountPercentageEl.placeholder || "";
+          }
+        });
+      }
+
+      editButtons.forEach(function (buttonEl) {
+        buttonEl.addEventListener("click", function () {
+          var rawProduct = buttonEl.getAttribute("data-edit-product");
+          if (!rawProduct || !editFormEl) {
+            return;
+          }
+          var product = JSON.parse(rawProduct);
+          editFormEl.action = "/admin/products/" + encodeURIComponent(String(product.id || ""));
+          editNameEl.value = "";
+          editDescriptionEl.value = "";
+          editPriceEl.value = "";
+          editDiscountPercentageEl.value = "";
+          editNameEl.placeholder = String(product.name || "");
+          editDescriptionEl.placeholder = String(product.description || "");
+          editPriceEl.placeholder = String(product.price || "");
+          editDescriptionEnabledEl.checked = Boolean(String(product.description || "").trim());
+          syncDescriptionField(editDescriptionEnabledEl, editDescriptionFieldEl, editDescriptionEl);
+          editDiscountEnabledEl.checked = Boolean(product.discount_enabled);
+          editDiscountPercentageEl.placeholder = String(product.discount_percentage || "");
+          syncDiscountField(editDiscountEnabledEl, editDiscountFieldEl);
+          editActiveEl.checked = Boolean(product.active);
+          if (product.image_url) {
+            editCurrentImageWrapEl.hidden = false;
+            editCurrentImageEl.src = String(product.image_url);
+            editCurrentImageEl.alt = String(product.name || "");
+          } else {
+            editCurrentImageWrapEl.hidden = true;
+            editCurrentImageEl.src = "";
+            editCurrentImageEl.alt = "";
+          }
+          setEditModalOpen(true);
+        });
+      });
+
+      function getProductOrder() {
+        if (!productsTbodyEl) {
+          return [];
+        }
+        return Array.prototype.slice.call(productsTbodyEl.querySelectorAll(".products-admin-row"))
+          .map(function (rowEl) {
+            return String(rowEl.getAttribute("data-product-id") || "").trim();
+          })
+          .filter(Boolean);
+      }
+
+      async function persistProductOrder() {
+        if (!productsTbodyEl || reorderInFlight) {
+          return;
+        }
+        reorderInFlight = true;
+        try {
+          var response = await window.fetch("/admin/products/reorder/save", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "X-CSRF-Token": csrfToken
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              order: getProductOrder()
+            })
+          });
+          if (!response.ok) {
+            throw new Error("reorder_failed");
+          }
+        } catch (error) {
+          window.location.reload();
+        } finally {
+          reorderInFlight = false;
+        }
+      }
+
+      function getDragAfterElement(containerEl, clientY) {
+        var rows = Array.prototype.slice.call(containerEl.querySelectorAll(".products-admin-row:not(.is-dragging)"));
+        var closest = null;
+        rows.forEach(function (rowEl) {
+          var box = rowEl.getBoundingClientRect();
+          var offset = clientY - box.top - (box.height / 2);
+          if (offset < 0 && (!closest || offset > closest.offset)) {
+            closest = { offset: offset, element: rowEl };
+          }
+        });
+        return closest ? closest.element : null;
+      }
+
+      if (productsTbodyEl) {
+        productsTbodyEl.addEventListener("dragstart", function (event) {
+          var rowEl = event.target.closest(".products-admin-row");
+          if (!rowEl) {
+            return;
+          }
+          draggedRowEl = rowEl;
+          rowEl.classList.add("is-dragging");
+          if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", rowEl.getAttribute("data-product-id") || "");
+          }
+        });
+
+        productsTbodyEl.addEventListener("dragover", function (event) {
+          if (!draggedRowEl) {
+            return;
+          }
+          event.preventDefault();
+          var afterElement = getDragAfterElement(productsTbodyEl, event.clientY);
+          if (!afterElement) {
+            productsTbodyEl.appendChild(draggedRowEl);
+          } else if (afterElement !== draggedRowEl) {
+            productsTbodyEl.insertBefore(draggedRowEl, afterElement);
+          }
+        });
+
+        productsTbodyEl.addEventListener("drop", function (event) {
+          if (!draggedRowEl) {
+            return;
+          }
+          event.preventDefault();
+        });
+
+        productsTbodyEl.addEventListener("dragend", function () {
+          if (!draggedRowEl) {
+            return;
+          }
+          draggedRowEl.classList.remove("is-dragging");
+          draggedRowEl = null;
+          persistProductOrder();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

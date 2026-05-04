@@ -1,0 +1,244 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}مزارع الثنيان - معلومات العميل{% endblock %}
+
+{% block content %}
+<main class="farm-page checkout-page">
+  <div class="checkout-products-data" hidden>
+    {% for product in products|selectattr("active")|list %}
+    <span data-checkout-product-id="{{ product.id }}" data-checkout-product-price="{{ product.discounted_price }}"></span>
+    {% endfor %}
+  </div>
+
+  <header class="farm-header checkout-header">
+    <div class="header-actions checkout-header-actions">
+      <a href="/" class="brand-lockup" aria-label="العودة للرئيسية">
+        <img class="brand-logo" src="/static/frontend/images/logo.webp" alt="مزارع الثنيان" />
+        <div class="brand-copy">
+          <strong>مزارع الثنيان</strong>
+          <span>Althenayan Farms</span>
+        </div>
+      </a>
+    </div>
+  </header>
+
+  <section class="checkout-shell">
+    <div class="checkout-card">
+      <p class="checkout-text">
+        أكمل بيانات التسليم الخاصة بك لمتابعة الطلب.
+      </p>
+      <form
+        class="checkout-form"
+        id="checkout-form"
+        action="/submit"
+        method="post"
+        novalidate
+        data-mainjs-ignore="true"
+        data-form-name="معلومات التسليم"
+        data-reset-on-success="false"
+        data-checkout-testing-autofill="{{ 'true' if payment_settings is defined and payment_settings is not none and payment_settings.testing_enabled else 'false' }}"
+      >
+        <label class="checkout-field">
+          <input type="text" name="name" placeholder=" " />
+          <span class="checkout-field-label">الاسم الكامل</span>
+        </label>
+        <p class="checkout-field-error" id="checkout-name-error" hidden>يرجى ادخال الاسم بشكل صحيح</p>
+
+        <label class="checkout-field">
+          <input type="text" name="address" placeholder=" " />
+          <span class="checkout-field-label">العنوان</span>
+        </label>
+
+        <label class="checkout-field">
+          <input type="text" name="address2" placeholder=" " />
+          <span class="checkout-field-label">الشقة \ البناية السكنية</span>
+        </label>
+
+        <label class="checkout-field checkout-phone-field" data-checkout-phone-field>
+          <span class="checkout-phone-prefix">+965</span>
+          <input
+            type="tel"
+            name="phone"
+            inputmode="numeric"
+            placeholder=" "
+            maxlength="8"
+          />
+          <span class="checkout-field-label">رقم الهاتف</span>
+        </label>
+        <p class="checkout-field-error" id="checkout-phone-error" hidden>يرجى ادخال رقم الهاتف بشكل صحيح</p>
+
+        <label class="checkout-field">
+          <textarea name="details" rows="4" placeholder=" "></textarea>
+          <span class="checkout-field-label">تفاصيل اضافية للسائق</span>
+        </label>
+
+        <hr class="checkout-divider" />
+
+        <section class="checkout-payment">
+          <h3 class="checkout-payment-title">طريقة الدفع</h3>
+          <div class="checkout-payment-options" role="radiogroup" aria-label="طريقة الدفع">
+            <label class="checkout-payment-option">
+              <input
+                type="radio"
+                name="payment_method"
+                id="checkout-payment-input"
+                value="knet"
+                checked
+              />
+              <span class="checkout-payment-card">
+                <img
+                  id="checkout-payment-icon"
+                  src="/static/frontend/images/knet.svg"
+                  alt="KNET"
+                />
+                <span id="checkout-payment-label">كي نت</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <div class="checkout-summary-box">
+          <div class="checkout-summary-row">
+            <span>إجمالي الكمية</span>
+            <strong id="checkout-total-quantity">0</strong>
+          </div>
+          <div class="checkout-summary-row">
+            <span>إجمالي المبلغ</span>
+            <strong class="money-value" id="checkout-total-amount">0.000 د.ك</strong>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+  <div class="checkout-submit-dock" id="checkout-submit-dock">
+    <button type="submit" class="checkout-submit-btn" form="checkout-form">متابعة للدفع</button>
+  </div>
+
+  <aside class="policy-modal checkout-redirect-modal" id="checkout-redirect-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop"></div>
+    <div class="policy-modal-card checkout-redirect-card" role="dialog" aria-modal="true" aria-labelledby="checkout-redirect-title">
+      <div class="policy-modal-body checkout-redirect-body">
+        <h2 id="checkout-redirect-title">الدفع الآمن</h2>
+        <p>جاري المتابعة والتوجيه لصفحة الدفع البنكية</p>
+        <p id="checkout-redirect-method-copy">من خلال كي-نت</p>
+        <p id="checkout-redirect-detail-copy">عند إتمام عملية الدفع بنجاح سيتم إعادة توجيهك من صفحة كي-نت إلى موقعنا لبدأ عملية تسليم طلبك</p>
+        <p class="checkout-redirect-note">سيتم تحويلك تلقائيًا إلى صفحة الدفع خلال <strong id="checkout-redirect-countdown">5 ثواني</strong></p>
+        <button type="button" class="checkout-redirect-btn" id="checkout-redirect-btn">المتابعة</button>
+      </div>
+    </div>
+  </aside>
+
+  <footer class="store-footer" id="store-footer">
+    <div class="store-footer-links" aria-label="روابط المتجر">
+      <a href="#" id="privacy-policy-trigger">سياسة الخصوصية</a>
+      <a href="#" id="refund-policy-trigger">سياسة الاسترجاع</a>
+      <a href="#" id="terms-policy-trigger">شروط الخدمة</a>
+      <a href="#" id="shipping-policy-trigger">سياسة الشحن</a>
+      <a href="#">معلومات الاتصال</a>
+    </div>
+    <p class="store-footer-copy" dir="rtl">جميع الحقوق محفوظة، مزارع الثنيان © 2026</p>
+  </footer>
+
+  <aside class="policy-modal" id="privacy-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="privacy-policy-title">سياسة الخصوصية</h2>
+        <button type="button" class="policy-modal-close" data-close-policy aria-label="إغلاق سياسة الخصوصية">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>نحن في مزارع الثنيان نحرص على حماية خصوصيتك والتعامل مع بياناتك بمسؤولية وشفافية.</p>
+        <p>عند استخدامك لهذا المتجر، قد نقوم بجمع المعلومات الأساسية اللازمة لإتمام الطلبات وتحسين تجربة الاستخدام، مثل الاسم ورقم الهاتف والعنوان وتفاصيل الطلب.</p>
+        <p>يتم استخدام هذه المعلومات فقط لأغراض تشغيل المتجر، وتأكيد الطلبات، والتوصيل، وخدمة العملاء، وتحسين جودة الخدمة.</p>
+        <p>نلتزم بعدم بيع أو مشاركة بياناتك الشخصية مع أي طرف ثالث إلا عند الضرورة التشغيلية المرتبطة بإتمام الطلب أو إذا طُلب ذلك بموجب الأنظمة المعمول بها.</p>
+        <p>كما نعمل على اتخاذ الإجراءات المناسبة لحماية بياناتك من الوصول غير المصرح به أو الاستخدام غير السليم.</p>
+        <p>باستخدامك لهذا المتجر، فإنك توافق على هذه السياسة وعلى استخدام بياناتك ضمن الحدود الموضحة أعلاه.</p>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="policy-modal" id="shipping-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-shipping-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="shipping-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="shipping-policy-title">سياسة الشحن</h2>
+        <button type="button" class="policy-modal-close" data-close-shipping-policy aria-label="إغلاق سياسة الشحن">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>نلتزم في مزارع الثنيان بتوفير شحن سريع وموثوق لجميع الطلبات داخل نطاق التوصيل المعتمد.</p>
+        <p>يتم تجهيز الطلب وبدء إجراءات الشحن مباشرة بعد تأكيد الدفع بنجاح.</p>
+        <p>مدة التوصيل المتوقعة هي خلال 40 دقيقة من وقت الدفع، وقد تختلف قليلًا حسب الموقع وحالة الطلبات والظروف التشغيلية.</p>
+        <p>في حال وجود أي تأخير غير متوقع، سيقوم فريقنا بالتواصل معك لإبلاغك بحالة الطلب ووقت الوصول المتوقع.</p>
+        <p>يرجى التأكد من إدخال بيانات الموقع والتواصل بشكل صحيح لضمان تسليم الطلب بسرعة ودقة.</p>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="policy-modal" id="terms-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-terms-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="terms-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="terms-policy-title">شروط الخدمة</h2>
+        <button type="button" class="policy-modal-close" data-close-terms-policy aria-label="إغلاق شروط الخدمة">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>باستخدامك لمتجر مزارع الثنيان فإنك توافق على الالتزام بهذه الشروط والأحكام المنظمة لعملية الشراء واستخدام الموقع.</p>
+        <p>جميع الطلبات تخضع للتوفر الفعلي للمنتجات، ويحق للمتجر تعديل أو إلغاء أي طلب عند وجود سبب تشغيلي أو خطأ في البيانات أو عدم توفر المنتج.</p>
+        <p>يلتزم العميل بتقديم معلومات صحيحة وكاملة عند إتمام الطلب، بما في ذلك بيانات التواصل وموقع التسليم.</p>
+        <p>الأسعار المعروضة داخل المتجر قابلة للتحديث أو التعديل في أي وقت، ويتم اعتماد السعر النهائي الظاهر عند تأكيد الطلب.</p>
+        <p>مدة التوصيل تقديرية وتعتمد على الموقع وحالة التشغيل والظروف الخارجية، مع حرصنا على تنفيذ الطلبات بأسرع وقت ممكن.</p>
+        <p>استمرارك في استخدام هذا المتجر أو إتمام عملية شراء يعني موافقتك على هذه الشروط وما قد يطرأ عليها من تحديثات.</p>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="policy-modal" id="refund-policy-modal" aria-hidden="true" hidden>
+    <div class="policy-modal-backdrop" data-close-refund-policy></div>
+    <div class="policy-modal-card" role="dialog" aria-modal="true" aria-labelledby="refund-policy-title">
+      <div class="policy-modal-head">
+        <h2 id="refund-policy-title">سياسة الإسترجاع والإستبدال</h2>
+        <button type="button" class="policy-modal-close" data-close-refund-policy aria-label="إغلاق سياسة الاسترجاع">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="cart-close-icon" viewBox="0 0 18 17" aria-hidden="true">
+            <path fill="currentColor" d="M.865 15.978a.5.5 0 0 0 .707.707l7.433-7.431 7.579 7.282a.501.501 0 0 0 .846-.37.5.5 0 0 0-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 1 0-.707-.708L8.991 7.853 1.413.573a.5.5 0 1 0-.693.72l7.563 7.268z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="policy-modal-body">
+        <p>نحن في مناحل الثنيان نلتزم بتقديم أفضل جودة لعملائنا. إذا كنت بحاجة إلى استرجاع أو استبدال أحد منتجاتنا، يُرجى الإلتزام بالشروط التالية لضمان تجربة سلسة وآمنة للجميع:</p>
+        <p><strong>1. استبدال المنتج:</strong></p>
+        <p>يمكن استبدال المنتج في حال عدم رضا العميل عن الجودة أو وجود أي تلف في المنتج.</p>
+        <p>يجب أن يكون المنتج في عبوته الأصلية مغلقة وغير مستخدم.</p>
+        <p>يتم طلب الإستبدال خلال مدة لا تتجاوز 7 أيام من تاريخ استلام الطلب.</p>
+        <p><strong>2. استرجاع المنتج:</strong></p>
+        <p>يمكن استرجاع المنتج بشرط أن يكون في عبوته الأصلية مغلقة.</p>
+        <p>يجب تضمين أي هدايا أو ملحقات تم تسليمها مع المنتج وذلك عند الإسترجاع.</p>
+        <p>يتم طلب الإسترجاع خلال مدة لا تتجاوز 3 أيام من تاريخ استلام الطلب.</p>
+        <p>يتم إرجاع المبلغ المدفوع عن طريق تحويل بنكي للحساب الخاص بالعميل.</p>
+        <p><strong>3. رسوم الإستبدال أو الإسترجاع:</strong></p>
+        <p>في حالة طلب الإستبدال وفقا للشروط المذكورة أعلاه يتحمل العميل رسوما بقيمة 50% من قيمة الشحن والتخليص الجمركي كمصاريف الإستبدال.</p>
+        <p>في حالة طلب الإسترجاع بدون وجود عيوب أو مشاكل في المنتج، سيتم خصم 30% من قيمة الفاتورة على أن لا تقل عن 10 دينار كويتي، أيهما أكبر.</p>
+        <p><strong>4. حالات غير مؤهلة للإسترجاع أو الإستبدال:</strong></p>
+        <p>المنتجات المتضررة بسبب سوء الإستخدام أو الإهمال أو الفتح.</p>
+        <p>المنتجات التي لا تتوافق مع الشروط المذكورة أعلاه.</p>
+        <p><strong>5. كيفية تقديم طلب الإسترجاع أو الإستبدال:</strong></p>
+        <p>يُرجى التواصل معنا من خلال صفحة "اتصل بنا" أو عبر الرقم الموحد المتاح على موقعنا.</p>
+        <p>سيتم مراجعة الطلب والتواصل مع العميل لتأكيد الإجراء المناسب.</p>
+      </div>
+    </div>
+  </aside>
+</main>
+{% endblock %}

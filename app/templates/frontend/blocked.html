@@ -1,0 +1,24 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}مزارع الثنيان - تم تقييد الوصول{% endblock %}
+
+{% block content %}
+  <main class="blocked-page">
+    <section class="blocked-card" aria-label="Blocked access notice">
+      <div class="blocked-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 2.5 2.9 19a1.2 1.2 0 0 0 1.05 1.8h16.1A1.2 1.2 0 0 0 21.1 19L12 2.5Z" fill="currentColor" opacity="0.16"></path>
+          <path d="M12 8.2v5.9m0 3.1h.01" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+          <path d="M12 2.5 2.9 19a1.2 1.2 0 0 0 1.05 1.8h16.1A1.2 1.2 0 0 0 21.1 19L12 2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <h1 class="blocked-title">محاولات كثيرة جدًا، يرجى المحاولة لاحقًا</h1>
+      <p class="blocked-copy">يرجى التواصل معنا لمزيد من المعلومات</p>
+      {% if whatsapp_url %}
+        <div class="blocked-actions">
+          <a class="blocked-whatsapp-btn" href="{{ whatsapp_url }}" target="_blank" rel="noreferrer noopener">WhatsApp</a>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

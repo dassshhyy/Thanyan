@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تسجيل الدخول</title>
+  <link rel="icon" type="image/svg+xml" href="/static/frontend/images/favicon/favicon.svg" />
+  <link rel="apple-touch-icon" href="/static/frontend/images/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/static/frontend/images/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0f766e" />
+  <link rel="stylesheet" href="/static/admin/vendor/tabler/tabler.min.css" />
+  <style>
+    .admin-login-input {
+      direction: rtl;
+      text-align: right;
+    }
+
+    .password-input-wrap {
+      position: relative;
+    }
+
+    .password-input-wrap .admin-login-input {
+      padding-left: 2.75rem;
+    }
+
+    .password-toggle-button {
+      position: absolute;
+      top: 50%;
+      left: 0.75rem;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .password-toggle-button:focus,
+    .password-toggle-button:focus-visible,
+    .password-toggle-button:hover,
+    .password-toggle-button:active {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      color: inherit;
+      outline: none;
+    }
+
+    .password-toggle-icon {
+      display: block;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    body {
+      direction: rtl;
+    }
+
+    .card-body {
+      text-align: right;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column">
+  <div class="page page-center">
+    <div class="container container-tight py-4">
+      <div class="card card-md">
+        <div class="card-body">
+          <h2 class="h2 text-center mb-4">تسجيل الدخول</h2>
+          {% if error %}
+          <div class="alert alert-danger" role="alert">{{ error }}</div>
+          {% endif %}
+          <form method="post" action="/admin/login" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+            <div class="mb-3">
+              <label class="form-label">اسم المستخدم</label>
+              <input class="form-control admin-login-input" type="text" name="username" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">كلمة المرور</label>
+              <div class="password-input-wrap">
+                <input
+                  class="form-control admin-login-input"
+                  id="admin-password"
+                  type="password"
+                  name="password"
+                  required
+                />
+                <button
+                  class="password-toggle-button"
+                  id="toggle-admin-password"
+                  type="button"
+                  aria-controls="admin-password"
+                  aria-label="إظهار كلمة المرور"
+                  aria-pressed="false"
+                >
+                  <svg
+                    class="password-toggle-icon"
+                    id="password-eye-open"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg
+                    class="password-toggle-icon d-none"
+                    id="password-eye-closed"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C5 19 1 12 1 12a21.77 21.77 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A10.93 10.93 0 0 1 12 5c7 0 11 7 11 7a21.72 21.72 0 0 1-4.07 5.31"></path>
+                    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
+                    <path d="M1 1l22 22"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-footer">
+              <button class="btn btn-primary w-100" type="submit">تسجيل الدخول</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/static/admin/vendor/tabler/tabler.min.js"></script>
+  <script>
+    const passwordInput = document.getElementById("admin-password");
+    const togglePasswordButton = document.getElementById("toggle-admin-password");
+    const openEyeIcon = document.getElementById("password-eye-open");
+    const closedEyeIcon = document.getElementById("password-eye-closed");
+
+    if (passwordInput && togglePasswordButton && openEyeIcon && closedEyeIcon) {
+      togglePasswordButton.addEventListener("click", () => {
+        const shouldShowPassword = passwordInput.type === "password";
+
+        passwordInput.type = shouldShowPassword ? "text" : "password";
+        openEyeIcon.classList.toggle("d-none", shouldShowPassword);
+        closedEyeIcon.classList.toggle("d-none", !shouldShowPassword);
+        togglePasswordButton.setAttribute(
+          "aria-label",
+          shouldShowPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"
+        );
+        togglePasswordButton.setAttribute(
+          "aria-pressed",
+          shouldShowPassword ? "true" : "false"
+        );
+      });
+    }
+  </script>
+</body>
+</html>
